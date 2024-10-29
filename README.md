@@ -273,7 +273,7 @@ Returns all the spots owned (created) by the current user.
 * Require Authentication: true
 * Request
   * Method: GET
-  * Route path: /user/spots
+  * Route path: /user/:userId/spots
   * Body: none
 
 * Successful Response
@@ -809,7 +809,7 @@ Create and return a new image for a review specified by id.
 * Require proper authorization: Review must belong to the current user
 * Request
   * Method: POST
-  * Route path: /user/:userId/reviews/:reviewId
+  * Route path: /reviews/:reviewId
   * Headers:
     * Content-Type: application/json
   * Body:
@@ -866,7 +866,7 @@ Update and return an existing review.
 * Require proper authorization: Review must belong to the current user
 * Request
   * Method: PUT
-  * Route path: /user/:userId/reviews/:reviewId
+  * Route path: /reviews/:reviewId
   * Headers:
     * Content-Type: application/json
   * Body:
@@ -932,7 +932,7 @@ Delete an existing review.
 * Require proper authorization: Review must belong to the current user
 * Request
   * Method: DELETE
-  * Route path: /user/:userId/reviews/:reviewId
+  * Route path: /reviews/:reviewId
   * Body: none
 
 * Successful Response
@@ -1163,7 +1163,7 @@ Update and return an existing booking.
 * Require proper authorization: Booking must belong to the current user
 * Request
   * Method: PUT
-  * Route path: /user/:userId/bookings/:bookingId
+  * Route path: /bookings/:bookingId
   * Headers:
     * Content-Type: application/json
   * Body:
@@ -1258,7 +1258,7 @@ Delete an existing booking.
   Spot must belong to the current user
 * Request
   * Method: DELETE
-  * Route path: /user/:userId/bookings/:bookingId
+  * Route path: /bookings/:bookingId
   * Body: none
 
 * Successful Response
@@ -1307,7 +1307,7 @@ Delete an existing image for a Spot.
 * Require proper authorization: Spot must belong to the current user
 * Request
   * Method: DELETE
-  * Route path: /user/:userId/spots/:spotId/:imageId
+  * Route path: /spots/:spotId/:imageId
   * Body: none
 
 * Successful Response
@@ -1342,7 +1342,7 @@ Delete an existing image for a Review.
 * Require proper authorization: Review must belong to the current user
 * Request
   * Method: DELETE
-  * Route path: /user/:userId/reviews/:reviewId/:imageId
+  * Route path: /reviews/:reviewId/:imageId
   * Body: none
 
 * Successful Response

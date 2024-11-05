@@ -31,28 +31,28 @@ router.post('/',
 )
 
 // Get all spots
-router.get('/spots', async (req,res) => {
-    // const spot = await Spot.findAll();
+router.get('/', async (req,res) => {
+    const spot = await Spot.findAll();
 
-    // const returnAllSpots = spot.map(spot => {
-    //     return {
-    //         id: spotId,
-    //         ownerId: ownerId,
-    //         address: spot.address,
-    //         city: spot.city,
-    //         state: spot.state,
-    //         country: spot.country,
-    //         lat: spot.lat,
-    //         lng: spot.lng,
-    //         name: spot.name,
-    //         description: spot.description,
-    //         price: spot.price,
-    //         createdAt: spot.createdAt,
-    //         updatedAt: spot.updatedAt,
-    //         avgRating: spot.avgStarRating,
-    //         previewImage: spot.previewImage,
-    //     }
-    // })
+    const returnAllSpots = spot.map(spot => {
+        return {
+            id: spot.id,
+            ownerId: spot.ownerId,
+            address: spot.address,
+            city: spot.city,
+            state: spot.state,
+            country: spot.country,
+            lat: spot.lat,
+            lng: spot.lng,
+            name: spot.name,
+            description: spot.description,
+            price: spot.price,
+            createdAt: spot.createdAt,
+            updatedAt: spot.updatedAt,
+            avgRating: spot.avgStarRating,
+            previewImage: spot.previewImage,
+        }
+    })
     
     return res.status(200).json(await Spot.findAll())
 })

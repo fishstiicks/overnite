@@ -7,6 +7,8 @@ router.get('/', (req, res) => {
     if (user) {
       const safeUser = {
         id: user.id,
+        firstname: user.firstName,
+        lastname: user.lastName,
         email: user.email,
         username: user.username,
       };
@@ -38,11 +40,40 @@ router.get('/spots', async (req, res) => {
 
 // Get current user's reviews
 router.get('/reviews', async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentification required' });
+  }
+
+  const { user } = req;
+  if (user) {
+      return res.status(200).json(
+        await Review.findAll({
+        where: {
+          userId: user.id
+        }
+      })
+    );
+  } else return res.status(200).json({ user: null });
 })
 
 // Get current user's bookings
 router.get('/bookings', async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentification required' });
+  }
+
+  const { user } = req;
+  if (user) {
+      return res.status(200).json(
+        await Booking.findAll({
+        where: {
+          userId: user.id
+        }
+      })
+    );
+  } else return res.status(200).json({ user: null });
 })
+
 
 
   module.exports = router;

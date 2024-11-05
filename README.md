@@ -50,7 +50,7 @@ Returns the information about the current user that is logged in.
 * Require Authentication: false
 * Request
   * Method: GET
-  * Route path: /user/:userId
+  * Route path: /users
   * Body: none
 
 * Successful Response when there is a logged in user

@@ -3,8 +3,7 @@ const { Spot } = require('../../db/models');
 const router = express.Router();
 
 // Create new spot
-router.post(
-    '/',
+router.post('/',
     //validateCreateSpot,
     async (req, res) => {
         if (!req.user) {
@@ -32,7 +31,29 @@ router.post(
 )
 
 // Get all spots
-router.get('/', async (req,res) => {
+router.get('/spots', async (req,res) => {
+    // const spot = await Spot.findAll();
+
+    // const returnAllSpots = spot.map(spot => {
+    //     return {
+    //         id: spotId,
+    //         ownerId: ownerId,
+    //         address: spot.address,
+    //         city: spot.city,
+    //         state: spot.state,
+    //         country: spot.country,
+    //         lat: spot.lat,
+    //         lng: spot.lng,
+    //         name: spot.name,
+    //         description: spot.description,
+    //         price: spot.price,
+    //         createdAt: spot.createdAt,
+    //         updatedAt: spot.updatedAt,
+    //         avgRating: spot.avgStarRating,
+    //         previewImage: spot.previewImage,
+    //     }
+    // })
+    
     return res.status(200).json(await Spot.findAll())
 })
 

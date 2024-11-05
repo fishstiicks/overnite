@@ -2,9 +2,7 @@ const express = require('express');
 const user = require('../../db/models/spot');
 const router = express.Router();
 
-router.post(
-    '/',
-    async (req, res) => {
+router.post('/',    async (req, res) => {
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
         const spot = await Spot.create({ address, city, state, country, lat, lng, name, description, price });
 

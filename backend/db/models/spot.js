@@ -16,12 +16,10 @@ module.exports = (sequelize, DataTypes) => {
   Spot.init({
     ownerId: {
       type: DataTypes.INTEGER,
-      allowNull: false
     },
     previewImage: DataTypes.STRING,
     address: {
       type: DataTypes.STRING,
-      allowNull: false
     },
     city: {
       type: DataTypes.STRING,
@@ -40,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         isWithinLatRange(value) {
-          if (value < 90 || value > 90) {
+          if (value < -90 || value > 90) {
             throw new Error('Latitude must be within -90 and 90')
           }
         }
@@ -68,13 +66,31 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    description: DataTypes.STRING,
-    price: DataTypes.INTEGER,
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    price: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isPositive(value) {
+          if (value <= 0) {
+            throw new Error('Price per day must be a positive number')
+          }
+        }
+      }
+    },
     numReviews: DataTypes.INTEGER,
     avgRating: DataTypes.FLOAT
   }, {
     sequelize,
     modelName: 'Spot',
+    defaultScope: {
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      }
+    }
   });
   return Spot;
 };

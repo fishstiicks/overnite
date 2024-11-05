@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 const { User } = require('../../db/models');
+const { Spot } = require('../../db/models');
 
 const router = express.Router();
 
@@ -51,6 +52,40 @@ router.post(
       });
     }
   );
+
+router.get('/', (req, res) => {
+    const { user } = req;
+    if (user) {
+      const safeUser = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+      };
+      return res.status(200).json({
+        user: safeUser
+      });
+    } else return res.status(200).json({ user: null });
+  }
+);
+
+
+router.get('/spots', async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentification required' });
+  }
+
+  const { user } = req;
+  if (user) {
+      return res.status(200).json(
+        await Spot.findAll({
+        where: {
+          ownerId: user.id
+        }
+      })
+    );
+  } else return res.status(200).json({ user: null });
+}
+);
 
 
   module.exports = router;

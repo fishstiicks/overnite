@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
+
 router.get("/api/csrf/restore", (req, res) => {
     const csrfToken = req.csrfToken();
     res.cookie("XSRF-TOKEN", csrfToken);

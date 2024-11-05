@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     previewImage: DataTypes.STRING,
     address: {
       type: DataTypes.STRING,
+      allowNull: false
     },
     city: {
       type: DataTypes.STRING,
@@ -85,12 +86,7 @@ module.exports = (sequelize, DataTypes) => {
     avgRating: DataTypes.FLOAT
   }, {
     sequelize,
-    modelName: 'Spot',
-    defaultScope: {
-      attributes: {
-        exclude: ['createdAt', 'updatedAt'],
-      }
-    }
+    modelName: 'Spot'
   });
   return Spot;
 };

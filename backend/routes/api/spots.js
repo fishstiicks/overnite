@@ -12,7 +12,7 @@ const validateCreateSpot = [
     check('address')
         .exists({checkFalsy: true})
         .notEmpty()
-        .withMessage('Address is required'),
+        .withMessage('Street address is required'),
     check('city')
         .exists({checkFalsy: true})
         .notEmpty()
@@ -29,14 +29,23 @@ const validateCreateSpot = [
         .exists({checkFalsy: true})
         .notEmpty()
         .withMessage('Latitude is required'),
+    check('lat')
+        .isInt({min: -90, max: 90})
+        .withMessage('Latitude must be within -90 and 90'),
     check('lng')
         .exists({checkFalsy: true})
         .notEmpty()
         .withMessage('Longitude is required'),
+    check('lng')
+        .isInt({min: -180, max: 180})
+        .withMessage('Longitude must be within -180 and 180'),
     check('name')
         .exists({checkFalsy: true})
         .notEmpty()
         .withMessage('Name is required'),
+    check('name')
+        .isByteLength({max:49})
+        .withMessage('Name must be less than 50 characters'),
     check('description')
         .exists({checkFalsy: true})
         .notEmpty()
@@ -58,7 +67,8 @@ router.post('/', validateCreateSpot, async (req, res, next) => {
         const currentUserId = req.user.id;
         const spot = await Spot.create({ ownerId: currentUserId, address, city, state, country, lat, lng, name, description, price });
 
-        const returnSpot = {
+
+        return res.status(201).json({
             id: spot.id,
             ownerId: spot.ownerId,
             address: spot.address,
@@ -72,10 +82,7 @@ router.post('/', validateCreateSpot, async (req, res, next) => {
             price: spot.price,
             createdAt: spot.createdAt,
             updatedAt: spot.updatedAt,
-        }
-
-
-        return res.status(201).json({spot: returnSpot})
+        })
     }
 )
 

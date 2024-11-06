@@ -183,7 +183,7 @@ router.put('/:spotId', async (req, res) => {
 
             //if no spot then bad request 400 CHANGE BACK TO 400
     if(!spot){
-       return res.status(405).json({message: "Bad Request"});
+       return res.status(400).json({message: "Bad Request"});
     }
 
     if (spot.ownerId === req.user.id) {
@@ -240,13 +240,61 @@ router.post('/:spotId', async (req, res) => {
 
     return res.status(201).json({spotImage: returnImg})})
 
-// Delete image from spot
-router.post('/:spotId/:imageId', async (req, res) => {
+// Delete image from spot //needs testing
+router.delete('/:spotId/images/:imageId', async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ "message": 'Authentification required' });
+    }
+
+    const {spotId, imageId} = req.params;
+    const spotimg = await SpotImage.findOne({where: { id: imageId, spotId: spotId }});
+
+    if(!spotimg){
+        return res.status(404).json({message: "Spot Image couldn't be found"})}
+
+    await spotimg.destroy()
+
+    return res.status(200).json({message: "Successfully deleted"})
 })
 
 
-// Get reviews for spot
-router.put('/:spotId/reviews', async (req, res) => {
+// Get reviews by spot needs testing
+router.get('/:spotId/reviews', async (req, res) => {
+    const {spotId} = req.params
+    const reviewsbyspot = await Spot.findOne({where: {spotId: spotId}})
+
+    if(!spotId){
+        return res.status(404).json({message: "Spot couldn't be found"})
+    }
+
+    const returnReviewsById = {
+        Reviews: [
+        {
+          id: reviewsbyspot.id,
+          userId: reviewsbyspot.userId,
+          spotId: reviewsbyspot.spotId,
+          review: reviewsbyspot.review,
+          stars: reviewsbyspot.stars,
+          createdAt: reviewsbyspot.createdAt,
+          updatedAt: reviewsbyspot.updatedAt,
+          User: {
+            id: reviewsbyspot.user.id,
+            firstName: reviewsbyspot.user.firstName,
+            lastName: reviewsbyspot.user.lastName
+          },
+          ReviewImages: [
+            {
+                //????????????
+              id: reviewsbyspot.ReviewImages.id,
+              url: reviewsbyspot.ReviewImages.id
+            }
+          ],
+        }
+      ]
+
+    }
+    return res.status(200).json(returnReviewsById)
+    
 })
 
 //danish chill dont do these rn 
@@ -354,6 +402,3 @@ router.post('/:spotId/bookings', async (req, res) => {
 
 module.exports = router;
 
-// module.exports = {
-//     validateCreateSpot
-//   };

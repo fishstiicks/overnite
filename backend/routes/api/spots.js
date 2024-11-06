@@ -155,28 +155,28 @@ router.get('/:spotId', async (req,res) => {
 
 // Delete spot
 router.delete('/:spotId', async (req, res) => {
-    if (!req.user) {
-        return res.status(401).json({ message: 'Authentication required' });
-    }
-    
     const { spotId } = req.params;
     const spot = await Spot.findOne({where: {id:spotId}})
-
-    if (spot.ownerId !== req.user.id) {
-        return res.status(403).json({ message: "Forbidden" });
-    }
-
+    
     if (!spot) {
         return res.status(400).json({
            "message": "Spot couldn't be found"
         })
     }
 
+    if (!req.user) {
+        return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    if (spot.ownerId !== req.user.id) {
+        return res.status(403).json({ message: "Forbidden" });
+    }
+
     await Spot.destroy({
         where: { id: spotId }
     });
 
-    return res.status(400).json({ message: 'Successfully deleted' });
+    return res.status(200).json({ message: 'Successfully deleted' });
     }
   );
 
@@ -240,13 +240,11 @@ router.post('/:spotId', async (req, res) => {
     const { url, preview } = req.body;
     const spotimg = await SpotImage.create({ spotId: spotId, url, preview });
 
-    const returnImg = {
+    return res.status(201).json({
         id: spotimg.id,
         url: spotimg.url,
         preview: spotimg.preview
-    }
-
-    return res.status(201).json({spotImage: returnImg})})
+    })})
 
 // Delete image from spot //needs testing
 router.delete('/:spotId/images/:imageId', async (req, res) => {

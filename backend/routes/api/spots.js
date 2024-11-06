@@ -8,7 +8,7 @@ const router = express.Router();
 const { handleValidationErrors } = require('../../utils/validation');
 const { check } = require('express-validator');
 
-const validateCreateSpot = [
+const validateSpot = [
     check('address')
         .exists({checkFalsy: true})
         .notEmpty()
@@ -52,13 +52,17 @@ const validateCreateSpot = [
         .withMessage('Description is required'),
     check('price')
         .exists({checkFalsy: true})
+        .withMessage('Price is required')
         .notEmpty()
-        .withMessage('Price is required'),
+        .withMessage('Price cannot be empty'),
+    check('price')
+    .isFloat({ min: 0.01})
+    .withMessage('Price per day must be a postive number'),
     handleValidationErrors
   ];
 
-// // Create new spot
-router.post('/', validateCreateSpot, async (req, res, next) => {
+// // Create new spot //added a new check+ if doesnt work keep validateSpot here and dont import+delete from validation
+router.post('/', validateSpot, async (req, res, next) => {
         if (!req.user) {
             return res.status(401).json({ message: 'Authentication required' });
         }
@@ -181,21 +185,23 @@ router.delete('/:spotId', async (req, res) => {
   );
 
 // Edits spot//NOT DONE//this only allows edit if user is authenticated and owner of spot
-router.put('/:spotId', async (req, res) => {
+//validateSpot import gives 404 if not found
+router.put('/:spotId',validateSpot, async (req, res) => {
+    //authentication
     if (!req.user) {
         return res.status(401).json({ message: 'Authentication required'});
     }
+    //must be owner
+if (spot.ownerId === req.user.id) {
+    return res.status(403).json({ message: 'You must be owner' });
+}
             //find the spot
     const { spotId } = req.params;
     const spot = await Spot.findOne({where: {id:spotId}});
 
-            //if no spot then bad request 400 CHANGE BACK TO 400
+            //couldnt find spot with specified ID
     if(!spot){
-       return res.status(400).json({message: "Bad Request"});
-    }
-
-    if (spot.ownerId === req.user.id) {
-        return res.status(403).json({ message: 'You must be owner' });
+       return res.status(404).json({message: "Bad Request"});
     }
             //update spot+save
     

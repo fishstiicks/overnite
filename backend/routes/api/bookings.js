@@ -5,7 +5,7 @@ const router = express.Router();
 
 
 // Edit booking by ID
-router.get('/:bookingId', async (req, res) => {
+router.put('/:bookingId', async (req, res) => {
     // Authenticate
     if (!req.user) {
         return res.status(401).json({ "message": 'Authentication required' });
@@ -13,7 +13,7 @@ router.get('/:bookingId', async (req, res) => {
 
     const { bookingId } = req.params;
     const { startDate, endDate } = req.body;
-    const booking = await Booking.findbyPk(bookingId);
+    const booking = await Booking.findByPk(bookingId);
 
     if (!booking) {
         return res.status(404).json({
@@ -84,13 +84,9 @@ router.get('/:bookingId', async (req, res) => {
 // Delete booking by ID
 router.delete('/:bookingId', async (req, res) => {
     // Authenticate
-    if (!req.user) {
-        return res.status(401).json({ "message": 'Authentication required' });
-    }
 
     const { bookingId } = req.params;
-    const booking = await Booking.findbyPk(bookingId);
-    const spot = await Spot.findbyPk(booking.spotId);
+    const booking = await Booking.findByPk(bookingId);
 
     if (!booking) {
         return res.status(404).json({
@@ -98,13 +94,19 @@ router.delete('/:bookingId', async (req, res) => {
         })
     }
 
+    if (!req.user) {
+        return res.status(401).json({ "message": 'Authentication required' });
+    }
+
+    const spot = await Spot.findByPk(booking.spotId);
+    
     if (booking.userId !== req.user.id && spot.ownerId !== req.user) {
         return res.status(403).json({ "message": "Forbidden" });
     }
 
     // Construct
 
-    if (booking.startDate >= Sequelize.literal('CURRENT TIMESTAMP')) {
+    if (booking.startDate <= new Date()) {
         return res.status(403).json({ "message": "Bookings that have been started can't be deleted"})
     }
 

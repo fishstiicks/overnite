@@ -1,7 +1,5 @@
 const express = require('express');
-const { Review } = require('../../db/models');
-const { reviewImage } = require('../../db/models');
-const { UPDATE } = require('sequelize/lib/query-types');
+const { Review, Spot, reviewImage } = require('../../db/models');
 const router = express.Router();
 
 
@@ -74,8 +72,12 @@ router.put('/:reviewId', async (req, res) => {
     currentReview.review = review;
     currentReview.stars = stars;
     currentReview.updatedAt = new Date();
-
     await currentReview.save();
+
+    const spot = await Spot.findByPk(currentReview.spotId);
+    const spotReviews = await Review.findAndCountAll({where: {spotId: spot.id}});
+    spot.avgRating = (spotReviews.rows.map(rev => {return rev.stars}).reduce((acc, cv) => acc + cv)) / spotReviews.count;
+    await spot.save();
 
     return res.status(200).json({
         id: currentReview.id,

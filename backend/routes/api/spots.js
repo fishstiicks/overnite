@@ -4,6 +4,7 @@ const { Spot } = require('../../db/models');
 const { SpotImage } = require('../../db/models');
 const { Booking } = require('../../db/models');
 const { Review } = require('../../db/models');
+const { User } = require('../../db/models');
 const router = express.Router();
 const { handleValidationErrors } = require('../../utils/validation');
 const { check } = require('express-validator');
@@ -121,7 +122,7 @@ router.post('/', validateSpot, async (req, res, next) => {
             description: spot.description,
             price: spot.price,
             createdAt: spot.createdAt,
-            updatedAt: spot.updatedAt,
+            updatedAt: spot.updatedAt
         })
     }
 )
@@ -168,7 +169,10 @@ router.get('/filtered',validateFilters, async (req,res) => {
 // Get spot details based on spot ID
 router.get('/:spotId', async (req,res) => {
     const { spotId } = req.params;
-    const spot = await Spot.findOne({where: {id:spotId}})
+    const spot = await Spot.findByPk(spotId, {
+        include: [{model: SpotImage}, {model: User, as: 'Owner', attributes: ['id', 'firstName', 'lastName']}],
+        attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt', 'numReviews', 'avgRating']
+      });
 
     if (!spot) {
         return res.status(400).json({
@@ -176,7 +180,7 @@ router.get('/:spotId', async (req,res) => {
         })
     }
 
-    const returnSpot = {
+    return res.status(200).json({
         id: spot.id,
         ownerId: spot.ownerId,
         address: spot.address,
@@ -191,11 +195,10 @@ router.get('/:spotId', async (req,res) => {
         createdAt: spot.createdAt,
         updatedAt: spot.updatedAt,
         numReviews: spot.numReviews,
-        avgStarRating: spot.avgStarRating,
-        // add SpotImages
-    }
-
-    return res.status(200).json(returnSpot)
+        avgRating: spot.avgRating,
+        SpotImages: spot.SpotImages,
+        Owner: spot.Owner 
+    })
 
 })
 
@@ -287,6 +290,16 @@ router.post('/:spotId', async (req, res) => {
     // Construct
     const { url, preview } = req.body;
     const spotimg = await SpotImage.create({ spotId: spotId, url, preview });
+
+    if (preview === true) {
+        spot.previewImage = url;
+        
+        let formerPreview = await SpotImage.findOne({where: {spotId: spotId, preview: true}})
+        formerPreview.preview = false;
+
+        await spot.save();
+        await formerPreview.save();
+    }
 
     return res.status(201).json({
         id: spotimg.id,
@@ -396,6 +409,10 @@ router.post('/:spotId/reviews', async (req, res) => {
     // Construct
     const currentReview = await Review.create({spotId: currentSpotId, userId: currentUserId, review, stars})
 
+    const spotReviews = await Review.findAndCountAll({where: {spotId: spotId}});
+    spot.avgRating = (spotReviews.rows.map(rev => {return rev.stars}).reduce((acc, cv) => acc + cv)) / spotReviews.count;
+    spot.numReviews = spotReviews.count;
+    await spot.save();
 
     return res.status(201).json({
         id: currentReview.id,

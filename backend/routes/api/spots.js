@@ -61,6 +61,42 @@ const validateSpot = [
     handleValidationErrors
   ];
 
+const validateFilters = [
+    check('page')
+        // .optional()
+        .isInt({ min: 1})
+        .withMessage('Page must be greater than or equal to 1'),
+    check('size')
+        // .optional()
+        .isInt({min:1, max: 20})
+        .withMessage('Size must be between 1 and 20'),
+    check('minLat')
+        .optional()
+        .isFloat({min: -90, max: 90})
+        .withMessage('Minimum latitude is invalid, must be between -90 and 90'),
+    check('maxLat')
+        .optional()
+        .isFloat({min: -90, max: 90})
+        .withMessage('Maximum latitude is invalid, must be between -90 and 90'),
+    check('minLng')
+        .optional()
+        .isFloat({min: -180, max: 180})
+        .withMessage('Minimum Longitude is invalid, must be between -180 and 180'),
+    check('maxLng')
+        .optional()
+        .isFloat({min: -180, max: 180})
+        .withMessage('Maximum Longitude is invalid, must be between -180 and 180'),
+    check('minPrice')
+        .optional()
+        .isInt({min:0})
+        .withMessage('Minimum price must be greater than or equal to 0'),
+    check('maxPrice')
+        .optional()
+        .isInt({min:0})
+        .withMessage('Maximum price must be greater than or equal to 0'),
+        handleValidationErrors
+  ];
+
 // // Create new spot //added a new check+ if doesnt work keep validateSpot here and dont import+delete from validation
 router.post('/', validateSpot, async (req, res, next) => {
         if (!req.user) {
@@ -119,7 +155,13 @@ router.get('/', async (req,res) => {
 
 
 // Get spots filtered
-router.get('/filtered', async (req,res) => {
+router.get('/filtered',validateFilters, async (req,res) => {
+    const{page = 1, size = 20, minLat, maxLat, minLng, maxLng, minPrice, maxPrice} = req.query
+
+    //paginate
+    const limit = parseInt(size)
+    const offset = (parseInt(page) -1)* limit
+    
 
 })
 
@@ -185,7 +227,7 @@ router.delete('/:spotId', async (req, res) => {
   );
 
 // Edits spot//NOT DONE//this only allows edit if user is authenticated and owner of spot
-//validateSpot import gives 404 if not found
+//validateSpot import gives 400 if not found
 router.put('/:spotId',validateSpot, async (req, res) => {
     //authentication
     if (!req.user) {
@@ -201,7 +243,7 @@ if (spot.ownerId === req.user.id) {
 
             //couldnt find spot with specified ID
     if(!spot){
-       return res.status(404).json({message: "Bad Request"});
+       return res.status(404).json({message: "Spot couldn't be found"});
     }
             //update spot+save
     

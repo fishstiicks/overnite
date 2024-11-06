@@ -1,4 +1,5 @@
 const express = require('express');
+const { Op } = require('sequelize');
 const { Booking, Sequelize, Spot } = require('../../db/models');
 const router = express.Router();
 
@@ -11,7 +12,6 @@ router.put('/:bookingId', async (req, res) => {
     }
 
     const { bookingId } = req.params;
-    const { startDate, endDate } = req.body;
     const booking = await Booking.findByPk(bookingId);
 
     if (!booking) {
@@ -24,43 +24,65 @@ router.put('/:bookingId', async (req, res) => {
         return res.status(403).json({ "message": "Forbidden" });
     }
 
+    const { startDate, endDate } = req.body;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const currentDate = new Date();
+
     // Data Validation
-    if (booking.startDate < Sequelize.literal('CURRENT TIMESTAMP')) {
+    if (start < currentDate) {
         return res.status(400).json( {"message": "startDate cannot be in the past"})}
-
-    if (booking.endDate <= booking.startDate) {
+    
+        if (end <= start) {
         return res.status(400).json( {"message": "endDate cannot be on or before startDate"})}
-
-    if (Sequelize.literal('CURRENT TIMESTAMP') > booking.endDate) {
+    
+        if (currentDate > end) {
         return res.status(403).json( {"message": "Past bookings can't be modified"})}
-
+        
     // Check spot is already booked for dates
-    const start = Date(startDate);
-    const end = Date(endDate);
-
-    const startConflict = await Booking.findOne({where: {
-        spotId: booking.spotId,
-        startDate: { [Op.between]: [start, end]}
-    }})
 
     const endConflict = await Booking.findOne({where: {
         spotId: booking.spotId,
-        endDate: {[Op.between]: [start, end]}
+        startDate: { [Op.between]: [start, end]},
+        [Op.not]: {
+            id: bookingId
+        }
+    }})
+
+    const startConflict = await Booking.findOne({where: {
+        spotId: booking.spotId,
+        endDate: {[Op.between]: [start, end]},
+        [Op.not]: {
+            id: bookingId
+        }
+    }})
+
+    const betweenConflict = await Booking.findOne({where: {
+        spotId: booking.spotId,
+        startDate: { [Op.lte]: start },
+        endDate: { [Op.gte]: end},
+        [Op.not]: {
+            id: bookingId
+        }
     }})
 
     if (startConflict) {return res.status(403).json(    {
         "message": "Sorry, this spot is already booked for the specified dates",
         "errors": {
-          "startDate": "Start date conflicts with an existing booking",
-        }
-      })}
+          "startDate": "Start date conflicts with an existing booking", 
+    }})}
 
     if (endConflict) {return res.status(403).json(    {
-    "message": "Sorry, this spot is already booked for the specified dates",
-    "errors": {
-        "endDate": "End date conflicts with an existing booking"
-    }
+        "message": "Sorry, this spot is already booked for the specified dates",
+        "errors": {
+            "endDate": "End date conflicts with an existing booking"}
     })}
+
+    if (betweenConflict) {return res.status(403).json({
+        "message": "Sorry, this spot is already booked for the specified dates",
+        "errors": {
+            "endDate": "Dates fall between existing booking"       
+    }})}
 
     // Construct
     booking.startDate = startDate;

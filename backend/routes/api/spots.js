@@ -298,8 +298,61 @@ router.get('/:spotId/reviews', async (req, res) => {
 })
 
 //danish chill dont do these rn 
+
 // Creates review for spot
 router.post('/:spotId/reviews', async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ "message": 'Authentification required' });
+    }
+
+    const { spotId } = req.params;
+    const spot = await Spot.findOne({where: {id:spotId}})
+
+    if (!spot) {
+        return res.status(404).json({
+           "message": "Spot couldn't be found"
+        })
+    }
+
+    const currentSpotId = spot.id;
+    const currentUserId = req.user.id;
+
+    const alreadyReviewed = await Review.findOne({where: {
+        spotId: spotId,
+        userId: currentUserId
+    }})
+
+    if (alreadyReviewed) {
+        return res.status(500).json({
+            "message": "User already has a review for this spot"
+        })
+    }
+
+    // Data Validation
+    const { review, stars } = req.body;
+
+    if (!review) { return res.status(400).json({
+        "message": "Bad Request",
+        "errors": {"review": "Review text is required"}})}
+
+    if (stars < 1 || stars > 5) { return res.status(400).json({
+        "message": "Bad Request",
+        "errors": {"review": "Stars must be an integer from 1 to 5"}})}
+
+    // Construct
+    const currentReview = await Review.create({spotId: currentSpotId, userId: currentUserId, review, stars})
+
+    const returnReview = {
+        id: currentReview.id,
+        userId: currentReview.userId,
+        spotId: currentReview.spotId,
+        review: currentReview.review,
+        stars: currentReview.stars,
+        createdAt: currentReview.createdAt,
+        updatedAt: currentReview.updatedAt
+    }
+
+    return res.status(201).json({review: returnReview})
 })
 
 

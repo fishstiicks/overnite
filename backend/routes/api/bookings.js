@@ -43,18 +43,27 @@ router.put('/:bookingId', async (req, res) => {
 
     const endConflict = await Booking.findOne({where: {
         spotId: booking.spotId,
-        startDate: { [Op.between]: [start, end]}
+        startDate: { [Op.between]: [start, end]},
+        [Op.not]: {
+            id: bookingId
+        }
     }})
 
     const startConflict = await Booking.findOne({where: {
         spotId: booking.spotId,
-        endDate: {[Op.between]: [start, end]}
+        endDate: {[Op.between]: [start, end]},
+        [Op.not]: {
+            id: bookingId
+        }
     }})
 
     const betweenConflict = await Booking.findOne({where: {
         spotId: booking.spotId,
         startDate: { [Op.lte]: start },
-        endDate: { [Op.gte]: end}
+        endDate: { [Op.gte]: end},
+        [Op.not]: {
+            id: bookingId
+        }
     }})
 
     if (startConflict) {return res.status(403).json(    {

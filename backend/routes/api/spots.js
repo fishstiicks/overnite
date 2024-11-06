@@ -468,9 +468,6 @@ router.post('/:spotId/bookings', async (req, res) => {
 
     if (end <= start) {
     return res.status(400).json( {"message": "endDate cannot be on or before startDate"})}
-
-    if (currentDate > end) {
-    return res.status(403).json( {"message": "Past bookings can't be modified"})}
     
     const endConflict = await Booking.findOne({where: {
         spotId: spotId,

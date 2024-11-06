@@ -1,5 +1,6 @@
 const express = require('express');
-const { Op, Spot, SpotImage, Review, reviewImage, User } = require('sequelize');
+const { Op } = require('sequelize');
+const { Booking, Spot, SpotImage, Review, reviewImage, User } = require('../../db/models')
 const router = express.Router();
 const { handleValidationErrors } = require('../../utils/validation');
 const { check } = require('express-validator');
@@ -471,29 +472,40 @@ router.post('/:spotId/bookings', async (req, res) => {
     if (currentDate > end) {
     return res.status(403).json( {"message": "Past bookings can't be modified"})}
     
-    const startConflict = await Booking.findOne({where: {
+    const endConflict = await Booking.findOne({where: {
         spotId: spotId,
         startDate: { [Op.between]: [start, end]}
     }})
 
-    const endConflict = await Booking.findOne({where: {
+    const startConflict = await Booking.findOne({where: {
         spotId: spotId,
         endDate: {[Op.between]: [start, end]}
+    }})
+
+    const betweenConflict = await Booking.findOne({where: {
+        spotId: spotId,
+        startDate: { [Op.lte]: start },
+        endDate: { [Op.gte]: end}
     }})
 
     if (startConflict) {return res.status(403).json(    {
     "message": "Sorry, this spot is already booked for the specified dates",
     "errors": {
         "startDate": "Start date conflicts with an existing booking",
-    }
-    })}
+    }})}
 
     if (endConflict) {return res.status(403).json(    {
     "message": "Sorry, this spot is already booked for the specified dates",
     "errors": {
         "endDate": "End date conflicts with an existing booking"
-    }
-    })}
+    }})}
+
+    
+    if (betweenConflict) {return res.status(403).json({
+        "message": "Sorry, this spot is already booked for the specified dates",
+        "errors": {
+            "endDate": "Dates fall between existing booking"       
+    }})}
 
     const currentUserId = req.user.id;
 

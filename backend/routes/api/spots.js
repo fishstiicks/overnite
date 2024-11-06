@@ -343,7 +343,8 @@ router.post('/:spotId/reviews', async (req, res) => {
     // Construct
     const currentReview = await Review.create({spotId: currentSpotId, userId: currentUserId, review, stars})
 
-    const returnReview = {
+
+    return res.status(201).json({
         id: currentReview.id,
         userId: currentReview.userId,
         spotId: currentReview.spotId,
@@ -351,9 +352,7 @@ router.post('/:spotId/reviews', async (req, res) => {
         stars: currentReview.stars,
         createdAt: currentReview.createdAt,
         updatedAt: currentReview.updatedAt
-    }
-
-    return res.status(201).json({review: returnReview})
+    })
 })
 
 
@@ -397,58 +396,56 @@ router.post('/:spotId/bookings', async (req, res) => {
     const spot = await Spot.findByPk(spotId);
 
     if (!spot) {
-        return res.status(404).json({
-           "message": "Spot couldn't be found"
-        })
-    }
+    return res.status(404).json({
+        "message": "Spot couldn't be found"
+    })}
 
     if (spot.ownerId === req.user.id) {
-        return res.status(200).json({ "message": "User cannot book own spot" });
-    }
+    return res.status(200).json({ "message": "User cannot book own spot" });
+}
 
-    // Data Validation
     const { startDate, endDate } = req.body;
     const start = new Date(startDate);
     const end = new Date(endDate);
     const currentDate = new Date();
 
     if (start < currentDate) {
-        return res.status(400).json( {"message": "startDate cannot be in the past"})}
+    return res.status(400).json( {"message": "startDate cannot be in the past"})}
 
     if (end <= start) {
-        return res.status(400).json( {"message": "endDate cannot be on or before startDate"})}
+    return res.status(400).json( {"message": "endDate cannot be on or before startDate"})}
 
     if (currentDate > end) {
-        return res.status(403).json( {"message": "Past bookings can't be modified"})}
-
-    // Check spot is already booked for dates
-
-    // const startConflict = await Booking.findOne({where: {
-    //     spotId: spotId,
-    //     startDate: { [Op.between]: [start, end]}
-    // }})
-
-    // const endConflict = await Booking.findOne({where: {
-    //     spotId: spotId,
-    //     endDate: {[Op.between]: [start, end]}
-    // }})
-
-    // if (startConflict) {return res.status(403).json(    {
-    //     "message": "Sorry, this spot is already booked for the specified dates",
-    //     "errors": {
-    //         "startDate": "Start date conflicts with an existing booking",
-    //     }
-    //     })}
-
-    // if (endConflict) {return res.status(403).json(    {
-    // "message": "Sorry, this spot is already booked for the specified dates",
-    // "errors": {
-    //     "endDate": "End date conflicts with an existing booking"
-    // }
-    // })}
+    return res.status(403).json( {"message": "Past bookings can't be modified"})}
     
+    const startConflict = await Booking.findOne({where: {
+        spotId: spotId,
+        startDate: { [Op.between]: [start, end]}
+    }})
+
+    const endConflict = await Booking.findOne({where: {
+        spotId: spotId,
+        endDate: {[Op.between]: [start, end]}
+    }})
+
+    if (startConflict) {return res.status(403).json(    {
+    "message": "Sorry, this spot is already booked for the specified dates",
+    "errors": {
+        "startDate": "Start date conflicts with an existing booking",
+    }
+    })}
+
+    if (endConflict) {return res.status(403).json(    {
+    "message": "Sorry, this spot is already booked for the specified dates",
+    "errors": {
+        "endDate": "End date conflicts with an existing booking"
+    }
+    })}
+
     const currentUserId = req.user.id;
-    const booking = await Booking.create({ userId: currentUserId, spotId: spotId, startDate, endDate});
+
+    const booking = await Booking.create({ userId: currentUserId, spotId: spotId, startDate: start, endDate: end });
+
 
     return res.status(201).json({
         id: booking.id,

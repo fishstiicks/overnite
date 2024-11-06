@@ -1,8 +1,9 @@
 const express = require('express');
+const { Op } = require('sequelize');
 const { Spot } = require('../../db/models');
 const { SpotImage } = require('../../db/models');
 const { Booking } = require('../../db/models');
-const review = require('../../db/models');
+const { Review } = require('../../db/models');
 const router = express.Router();
 const { handleValidationErrors } = require('../../utils/validation');
 const { check } = require('express-validator');
@@ -50,7 +51,7 @@ const validateCreateSpot = [
 // // Create new spot
 router.post('/', validateCreateSpot, async (req, res, next) => {
         if (!req.user) {
-            return res.status(401).json({ message: 'Authentification required' });
+            return res.status(401).json({ message: 'Authentication required' });
         }
 
         const { address, city, state, country, lat, lng, name, description, price } = req.body;
@@ -148,7 +149,7 @@ router.get('/:spotId', async (req,res) => {
 // Delete spot
 router.delete('/:spotId', async (req, res) => {
     if (!req.user) {
-        return res.status(401).json({ message: 'Authentification required' });
+        return res.status(401).json({ message: 'Authentication required' });
     }
     
     const { spotId } = req.params;
@@ -175,7 +176,7 @@ router.delete('/:spotId', async (req, res) => {
 // Edits spot//NOT DONE//this only allows edit if user is authenticated and owner of spot
 router.put('/:spotId', async (req, res) => {
     if (!req.user) {
-        return res.status(401).json({ message: 'Authentification required'});
+        return res.status(401).json({ message: 'Authentication required'});
     }
             //find the spot
     const { spotId } = req.params;
@@ -215,7 +216,7 @@ router.put('/:spotId', async (req, res) => {
 router.post('/:spotId', async (req, res) => {
     // Authenticate
     if (!req.user) {
-        return res.status(401).json({ "message": 'Authentification required' });
+        return res.status(401).json({ "message": 'Authentication required' });
     }
     
     const {spotId} = req.params;
@@ -243,7 +244,7 @@ router.post('/:spotId', async (req, res) => {
 // Delete image from spot //needs testing
 router.delete('/:spotId/images/:imageId', async (req, res) => {
     if (!req.user) {
-        return res.status(401).json({ "message": 'Authentification required' });
+        return res.status(401).json({ "message": 'Authentication required' });
     }
 
     const {spotId, imageId} = req.params;
@@ -302,7 +303,7 @@ router.get('/:spotId/reviews', async (req, res) => {
 // Creates review for spot
 router.post('/:spotId/reviews', async (req, res) => {
     if (!req.user) {
-        return res.status(401).json({ "message": 'Authentification required' });
+        return res.status(401).json({ "message": 'Authentication required' });
     }
 
     const { spotId } = req.params;
@@ -359,11 +360,11 @@ router.post('/:spotId/reviews', async (req, res) => {
 // Get bookings for spot
 router.get('/:spotId/bookings', async (req, res) => {
     if (!req.user) {
-        return res.status(401).json({ message: 'Authentification required' });
+        return res.status(401).json({ message: 'Authentication required' });
     }
     
     const { spotId } = req.params;
-    const spot = await review.findbyPk(spotId);
+    const spot = await Spot.findByPk(spotId);
 
     if (!spot) {
         return res.status(404).json({
@@ -372,8 +373,16 @@ router.get('/:spotId/bookings', async (req, res) => {
     }
 
     if (spot.ownerId === req.user.id) {
-        return res.status(200).json(await Spot.findAll())
+        return res.status(200).json(await Booking.findAll({
+            where: {spotId: spotId},
+            attributes: ['spotId', 'startDate', 'endDate']
+        }))
     }
+
+    return res.status(200).json(await Booking.findAll({
+        where: {spotId: spotId},
+        attributes: ['spotId', 'startDate', 'endDate', 'createdAt', 'updatedAt']
+    }))
 
 
 })
@@ -381,11 +390,11 @@ router.get('/:spotId/bookings', async (req, res) => {
 // Create booking for spot
 router.post('/:spotId/bookings', async (req, res) => {
     if (!req.user) {
-        return res.status(401).json({ message: 'Authentification required' });
+        return res.status(401).json({ message: 'Authentication required' });
     }
 
     const { spotId } = req.params;
-    const spot = await review.findbyPk(spotId);
+    const spot = await Spot.findByPk(spotId);
 
     if (!spot) {
         return res.status(404).json({
@@ -399,44 +408,44 @@ router.post('/:spotId/bookings', async (req, res) => {
 
     // Data Validation
     const { startDate, endDate } = req.body;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const currentDate = new Date();
 
-    if (booking.startDate < Sequelize.literal('CURRENT TIMESTAMP')) {
+    if (start < currentDate) {
         return res.status(400).json( {"message": "startDate cannot be in the past"})}
 
-    if (booking.endDate <= booking.startDate) {
+    if (end <= start) {
         return res.status(400).json( {"message": "endDate cannot be on or before startDate"})}
 
-    if (Sequelize.literal('CURRENT TIMESTAMP') > booking.endDate) {
+    if (currentDate > end) {
         return res.status(403).json( {"message": "Past bookings can't be modified"})}
 
     // Check spot is already booked for dates
 
-    const start = Date(startDate);
-    const end = Date(endDate);
+    // const startConflict = await Booking.findOne({where: {
+    //     spotId: spotId,
+    //     startDate: { [Op.between]: [start, end]}
+    // }})
 
-    const startConflict = await Booking.findOne({where: {
-        spotId: booking.spotId,
-        startDate: { [Op.between]: [start, end]}
-    }})
+    // const endConflict = await Booking.findOne({where: {
+    //     spotId: spotId,
+    //     endDate: {[Op.between]: [start, end]}
+    // }})
 
-    const endConflict = await Booking.findOne({where: {
-        spotId: booking.spotId,
-        endDate: {[Op.between]: [start, end]}
-    }})
+    // if (startConflict) {return res.status(403).json(    {
+    //     "message": "Sorry, this spot is already booked for the specified dates",
+    //     "errors": {
+    //         "startDate": "Start date conflicts with an existing booking",
+    //     }
+    //     })}
 
-    if (startConflict) {return res.status(403).json(    {
-        "message": "Sorry, this spot is already booked for the specified dates",
-        "errors": {
-            "startDate": "Start date conflicts with an existing booking",
-        }
-        })}
-
-    if (endConflict) {return res.status(403).json(    {
-    "message": "Sorry, this spot is already booked for the specified dates",
-    "errors": {
-        "endDate": "End date conflicts with an existing booking"
-    }
-    })}
+    // if (endConflict) {return res.status(403).json(    {
+    // "message": "Sorry, this spot is already booked for the specified dates",
+    // "errors": {
+    //     "endDate": "End date conflicts with an existing booking"
+    // }
+    // })}
     
     const currentUserId = req.user.id;
     const booking = await Booking.create({ userId: currentUserId, spotId: spotId, startDate, endDate});

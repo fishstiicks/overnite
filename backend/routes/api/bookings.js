@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/:bookingId', async (req, res) => {
     // Authenticate
     if (!req.user) {
-        return res.status(401).json({ "message": 'Authentification required' });
+        return res.status(401).json({ "message": 'Authentication required' });
     }
 
     const { bookingId } = req.params;
@@ -85,7 +85,7 @@ router.get('/:bookingId', async (req, res) => {
 router.delete('/:bookingId', async (req, res) => {
     // Authenticate
     if (!req.user) {
-        return res.status(401).json({ "message": 'Authentification required' });
+        return res.status(401).json({ "message": 'Authentication required' });
     }
 
     const { bookingId } = req.params;

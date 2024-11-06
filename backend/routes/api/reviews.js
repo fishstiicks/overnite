@@ -9,7 +9,7 @@ const router = express.Router();
 router.post('/:reviewId', async (req, res) => {
     // Authenticate
     if (!req.user) {
-        return res.status(401).json({ "message": 'Authentification required' });
+        return res.status(401).json({ "message": 'Authentication required' });
     }
 
     const { reviewId } = req.params;
@@ -42,7 +42,7 @@ router.post('/:reviewId', async (req, res) => {
 router.put('/:reviewId', async (req, res) => {
     // Authenticate
     if (!req.user) {
-        return res.status(401).json({ "message": 'Authentification required' });
+        return res.status(401).json({ "message": 'Authentication required' });
     }
 
     const { reviewId } = req.params;
@@ -91,7 +91,7 @@ router.put('/:reviewId', async (req, res) => {
 router.delete('/:reviewId', async (req, res) => {
     // Authenticate
     if (!req.user) {
-        return res.status(401).json({ "message": 'Authentification required' });
+        return res.status(401).json({ "message": 'Authentication required' });
     }
 
     const { reviewId } = req.params;
@@ -120,7 +120,7 @@ router.delete('/:reviewId', async (req, res) => {
 router.delete('/:reviewId/:imageId', async(req, res) => {
     // Authenticate
     if (!req.user) {
-        return res.status(401).json({ "message": 'Authentification required' });
+        return res.status(401).json({ "message": 'Authentication required' });
     }
 
     const { reviewId, imageId } = req.params;

@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
 // Get current user's spots
 router.get('/spots', async (req, res) => {
   if (!req.user) {
-    return res.status(401).json({ message: 'Authentification required' });
+    return res.status(401).json({ message: 'Authentication required' });
   }
 
   const { user } = req;
@@ -41,7 +41,7 @@ router.get('/spots', async (req, res) => {
 // Get current user's reviews
 router.get('/reviews', async (req, res) => {
   if (!req.user) {
-    return res.status(401).json({ message: 'Authentification required' });
+    return res.status(401).json({ message: 'Authentication required' });
   }
 
   const { user } = req;
@@ -59,7 +59,7 @@ router.get('/reviews', async (req, res) => {
 // Get current user's bookings
 router.get('/bookings', async (req, res) => {
   if (!req.user) {
-    return res.status(401).json({ message: 'Authentification required' });
+    return res.status(401).json({ message: 'Authentication required' });
   }
 
   const { user } = req;

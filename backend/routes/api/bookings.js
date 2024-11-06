@@ -1,6 +1,5 @@
 const express = require('express');
-const { Booking, Sequelize } = require('../../db/models');
-const { Spot } = require('../../db/models');
+const { Booking, Sequelize, Spot } = require('../../db/models');
 const router = express.Router();
 
 
@@ -99,7 +98,7 @@ router.delete('/:bookingId', async (req, res) => {
     }
 
     const spot = await Spot.findByPk(booking.spotId);
-    
+
     if (booking.userId !== req.user.id && spot.ownerId !== req.user) {
         return res.status(403).json({ "message": "Forbidden" });
     }

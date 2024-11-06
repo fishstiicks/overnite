@@ -1,13 +1,9 @@
 const express = require('express');
-const { Op } = require('sequelize');
-const { Spot } = require('../../db/models');
-const { SpotImage } = require('../../db/models');
-const { Booking } = require('../../db/models');
-const { Review } = require('../../db/models');
-const { User } = require('../../db/models');
+const { Op, Spot, SpotImage, Review, reviewImage, User } = require('sequelize');
 const router = express.Router();
 const { handleValidationErrors } = require('../../utils/validation');
 const { check } = require('express-validator');
+const reviewimage = require('../../db/models/reviewimage');
 
 const validateSpot = [
     check('address')
@@ -31,14 +27,14 @@ const validateSpot = [
         .notEmpty()
         .withMessage('Latitude is required'),
     check('lat')
-        .isInt({min: -90, max: 90})
+        .isFloat({min: -90, max: 90})
         .withMessage('Latitude must be within -90 and 90'),
     check('lng')
         .exists({checkFalsy: true})
         .notEmpty()
         .withMessage('Longitude is required'),
     check('lng')
-        .isInt({min: -180, max: 180})
+        .isFloat({min: -180, max: 180})
         .withMessage('Longitude must be within -180 and 180'),
     check('name')
         .exists({checkFalsy: true})
@@ -191,23 +187,25 @@ router.delete('/:spotId', async (req, res) => {
 //validateSpot import gives 404 if not found
 router.put('/:spotId',validateSpot, async (req, res) => {
     //authentication
-    if (!req.user) {
-        return res.status(401).json({ message: 'Authentication required'});
-    }
-    //must be owner
-if (spot.ownerId === req.user.id) {
-    return res.status(403).json({ message: 'You must be owner' });
-}
             //find the spot
     const { spotId } = req.params;
     const spot = await Spot.findOne({where: {id:spotId}});
 
             //couldnt find spot with specified ID
     if(!spot){
-       return res.status(404).json({message: "Bad Request"});
+       return res.status(404).json({message: "Spot couldn't be found"});
     }
+
+    if (!req.user) {
+        return res.status(401).json({ message: 'Authentication required'});
+    }
+
+        //must be owner
+    if (spot.ownerId !== req.user.id) {
+    return res.status(403).json({ message: 'You must be owner' });
+}
             //update spot+save
-    
+
     spot.set({
             address: req.body.address,
             city: req.body.city,
@@ -272,6 +270,11 @@ router.delete('/:spotId/images/:imageId', async (req, res) => {
     }
 
     const {spotId, imageId} = req.params;
+    const spot = await Spot.findOne({where: { id: spotId }});
+    if (spot.ownerId !== req.user.id) {
+        return res.status(403).json({ message: "Forbidden" });
+    }
+    
     const spotimg = await SpotImage.findOne({where: { id: imageId, spotId: spotId }});
 
     if(!spotimg){
@@ -286,40 +289,19 @@ router.delete('/:spotId/images/:imageId', async (req, res) => {
 // Get reviews by spot needs testing
 router.get('/:spotId/reviews', async (req, res) => {
     const {spotId} = req.params
-    const reviewsbyspot = await Spot.findOne({where: {spotId: spotId}})
-
-    if(!spotId){
+    
+    if (!(await Spot.findByPk(spotId))){
         return res.status(404).json({message: "Spot couldn't be found"})
     }
-
-    const returnReviewsById = {
-        Reviews: [
-        {
-          id: reviewsbyspot.id,
-          userId: reviewsbyspot.userId,
-          spotId: reviewsbyspot.spotId,
-          review: reviewsbyspot.review,
-          stars: reviewsbyspot.stars,
-          createdAt: reviewsbyspot.createdAt,
-          updatedAt: reviewsbyspot.updatedAt,
-          User: {
-            id: reviewsbyspot.user.id,
-            firstName: reviewsbyspot.user.firstName,
-            lastName: reviewsbyspot.user.lastName
-          },
-          ReviewImages: [
-            {
-                //????????????
-              id: reviewsbyspot.ReviewImages.id,
-              url: reviewsbyspot.ReviewImages.id
-            }
-          ],
-        }
-      ]
-
-    }
-    return res.status(200).json(returnReviewsById)
     
+    return res.status(200).json({Reviews: 
+        await Review.findAll({
+        where: {spotId: spotId},
+        include: [
+          {model: User, attributes: ['id', 'firstName', 'lastName']},
+          {model: reviewImage, attributes: ['id', 'url']},
+        ]
+      })});
 })
 
 //danish chill dont do these rn 
@@ -407,8 +389,9 @@ router.get('/:spotId/bookings', async (req, res) => {
     }
 
     return res.status(200).json(await Booking.findAll({
+        include: [{model: User, attributes: ['id', 'firstName', 'lastName']}],
         where: {spotId: spotId},
-        attributes: ['spotId', 'startDate', 'endDate', 'createdAt', 'updatedAt']
+        attributes: ['id', 'spotId', 'startDate', 'endDate', 'createdAt', 'updatedAt']
     }))
 
 

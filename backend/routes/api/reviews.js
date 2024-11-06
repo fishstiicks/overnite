@@ -121,7 +121,7 @@ router.delete('/:reviewId', async (req, res) => {
 
 
 // Delete image from review by IDs
-router.delete('/:reviewId/:imageId', async(req, res) => {
+router.delete('/:reviewId/images/:imageId', async(req, res) => {
     // Authenticate
     if (!req.user) {
         return res.status(401).json({ "message": 'Authentication required' });

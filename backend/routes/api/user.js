@@ -1,8 +1,7 @@
-const { Spot } = require('../../db/models');
-const { Booking } = require('../../db/models');
-const { Review } = require('../../db/models');
+const { Spot, Booking, User, Review, reviewImage } = require('../../db/models');
 
 const express = require('express');
+const reviewimage = require('../../db/models/reviewimage');
 const router = express.Router();
 
 // Get current user's info
@@ -49,14 +48,25 @@ router.get('/reviews', async (req, res) => {
   }
 
   const { user } = req;
+
   if (user) {
-      return res.status(200).json(
-        await Review.findAll({
-        where: {
-          userId: user.id
+    return res.status(200).json({Reviews: 
+      await Review.findAll({
+      where: {userId: user.id},
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'firstName', 'lastName']
+        },
+        {
+          model: Spot,
+          attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'price', 'previewImage']
+        },
+        {
+          model: reviewImage
         }
-      })
-    );
+      ]
+    })});
   } else return res.status(200).json({ user: null });
 })
 
@@ -69,13 +79,11 @@ router.get('/bookings', async (req, res) => {
   const { user } = req;
 
   if (user) {
-      return res.status(200).json(
-        await Booking.findAll({
-        where: {
-          userId: user.id
-        }
-      })
-    );
+      return res.status(200).json({Bookings: await Booking.findAll({
+        where: {userId: user.id},
+        attributes: ['id', 'spotId', 'userId', 'startDate', 'endDate', 'createdAt', 'updatedAt'],
+        include: [{ model: Spot, attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'price', 'previewImage']}],
+      })});
   } else return res.status(200).json({ user: null });
 })
 

@@ -85,7 +85,7 @@ router.post('/', validateSpot, async (req, res, next) => {
             description: spot.description,
             price: spot.price,
             createdAt: spot.createdAt,
-            updatedAt: spot.updatedAt,
+            updatedAt: spot.updatedAt
         })
     }
 )
@@ -354,6 +354,9 @@ router.post('/:spotId/reviews', async (req, res) => {
     // Construct
     const currentReview = await Review.create({spotId: currentSpotId, userId: currentUserId, review, stars})
 
+    const spotReviews = await Review.findAndCountAll({where: {spotId: spotId}});
+    spot.avgRating = (spotReviews.rows.map(rev => {return rev.stars}).reduce((acc, cv) => acc + cv)) / spotReviews.count;
+    await spot.save();
 
     return res.status(201).json({
         id: currentReview.id,

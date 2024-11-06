@@ -159,6 +159,19 @@ router.get('/filtered',validateFilters, async (req,res) => {
     const limit = parseInt(size)
     const offset = (parseInt(page) -1)* limit
     
+    //build filter for query 
+    const where = {}
+    //fill in filters with conditions
+    if(minLat) where.latitude = { [Op.gte]: parseFloat(minLat)};
+    if(maxLat) where.latitude = { ...where.latitude, [Op.lte]: parseFloat(maxLat)};
+    if(minLng) where.longitude = { [Op.gte]: parseFloat(minLng)};
+    if(maxLng) where.longitude = { ...where.longitude, [Op.lte]: parseFloat(maxLng)};
+    if(minPrice) where.price = { [Op.gte]: parseFloat(minPrice)};
+    if(maxPrice) where.price = { ...where.price, [Op.lte]: parseFloat(maxPrice)};
+
+    const spots = await Spot.findAll({ where, limit, offset})
+
+    res.status(200).json({spots})
 
 })
 

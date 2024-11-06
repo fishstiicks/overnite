@@ -30,16 +30,16 @@ router.get('/spots', async (req, res) => {
 
   const { user } = req;
   if (user) {
-      return res.status(200).json(
+      return res.status(200).json({Spots:
         await Spot.findAll({
         where: {
           ownerId: user.id
-        }
+        },
+        attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt', 'avgRating', 'previewImage']
       })
-    );
+  });
   } else return res.status(200).json({ user: null });
-}
-);
+});
 
 // Get current user's reviews
 router.get('/reviews', async (req, res) => {

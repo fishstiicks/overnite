@@ -13,7 +13,7 @@ router.post('/:reviewId', async (req, res) => {
     }
 
     const { reviewId } = req.params;
-    const review = await Review.findbyPk(reviewId);
+    const review = await Review.findByPk(reviewId);
 
     if (!review) {
         return res.status(404).json({
@@ -25,16 +25,18 @@ router.post('/:reviewId', async (req, res) => {
         return res.status(403).json({ "message": "Forbidden" });
     }
 
-    // Construct
-    const { url } = req.body;
-    const reviewImage = await reviewImage.create({ reviewId: reviewId, url });
-
-    const returnReview = {
-        id: reviewImage.id,
-        url: reviewImage.url
+    const totalImages = await reviewImage.findAndCountAll({where: {reviewId: reviewId}})
+    if (totalImages.count === 10) {
+        return res.status(403).json({ "message": "Maximum number of images for this resource was reached" })
     }
 
-    return res.status(201).json({review: returnReview})
+    // Construct
+    const { url } = req.body;
+    const revimg = await reviewImage.create({ reviewId: reviewId, url });
+
+    return res.status(201).json({
+        id: revimg.id,
+        url: revimg.url})
 })
 
 
@@ -47,7 +49,7 @@ router.put('/:reviewId', async (req, res) => {
 
     const { reviewId } = req.params;
     const { review, stars } = req.body;
-    const currentReview = await Review.findbyPk(reviewId);
+    const currentReview = await Review.findByPk(reviewId);
 
     if (!currentReview) {
         return res.status(404).json({
@@ -71,9 +73,9 @@ router.put('/:reviewId', async (req, res) => {
     // Construct
     currentReview.review = review;
     currentReview.stars = stars;
-    currentReview.updatedAt = Sequelize.literal('CURRENT TIMESTAMP');
+    currentReview.updatedAt = new Date();
 
-    await existingReview.save();
+    await currentReview.save();
 
     return res.status(200).json({
         id: currentReview.id,
@@ -89,24 +91,24 @@ router.put('/:reviewId', async (req, res) => {
 
 // Delete review by ID
 router.delete('/:reviewId', async (req, res) => {
+    const { reviewId } = req.params;
+    const review  = await Review.findByPk(reviewId);
+    if (!review) {
+        return res.status(404).json({
+           "message": "Review couldn't be found"
+        })
+    }
+
     // Authenticate
     if (!req.user) {
         return res.status(401).json({ "message": 'Authentication required' });
     }
-
-    const { reviewId } = req.params;
-    const review  = await Review.findbyPk(reviewId);
 
     if (review.userId !== req.user.id) {
         return res.status(403).json({ "message": "Forbidden" });
     }
 
     // Construct
-    if (!review) {
-        return res.status(404).json({
-           "message": "Review couldn't be found"
-        })
-    }
 
     await Review.destroy({
         where: { id: reviewId }
@@ -124,21 +126,21 @@ router.delete('/:reviewId/:imageId', async(req, res) => {
     }
 
     const { reviewId, imageId } = req.params;
-    const review = await Review.findbyPk(reviewId);
-    const reviewImage = await reviewImage.findbyPk(reviewId);
+    const review = await Review.findByPk(reviewId);
+    const revimg = await reviewImage.findByPk(reviewId);
 
     if (review.userId !== req.user.id) {
         return res.status(403).json({ "message": "Forbidden" });
     }
 
     // Construct
-    if (!reviewImage) {
+    if (!revimg) {
         return res.status(404).json({
            "message": "Review Image couldn't be found"
         })
     }
 
-    await reviewImage.destroy({
+    await revimg.destroy({
         where: { id: reviewId, imageId: imageId }
     });
 

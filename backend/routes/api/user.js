@@ -1,3 +1,7 @@
+const { Spot } = require('../../db/models');
+const { Booking } = require('../../db/models');
+const { Review } = require('../../db/models');
+
 const express = require('express');
 const router = express.Router();
 
@@ -63,6 +67,7 @@ router.get('/bookings', async (req, res) => {
   }
 
   const { user } = req;
+
   if (user) {
       return res.status(200).json(
         await Booking.findAll({

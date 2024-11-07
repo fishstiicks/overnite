@@ -1,6 +1,5 @@
 const { Spot, Booking, User, Review, reviewImage } = require('../../db/models');
 const express = require('express');
-const reviewimage = require('../../db/models/reviewimage');
 const router = express.Router();
 
 // Get current user's info

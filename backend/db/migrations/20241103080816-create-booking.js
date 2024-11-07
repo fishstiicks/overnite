@@ -1,9 +1,8 @@
 'use strict';
 let options = {};
 if (process.env.NODE_ENV === 'production') {
-  options.schema = process.env.SCHEMA;  // define your schema in options object
+  options.schema = process.env.SCHEMA;  // Ensure the schema is set
 }
-
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Bookings', {
@@ -37,7 +36,7 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
-    }, options);
+    }, options); 
   },
 
   async down(queryInterface, Sequelize) {

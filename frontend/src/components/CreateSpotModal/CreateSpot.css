@@ -1,5 +1,5 @@
-form {
+#create-spot-form {
+    padding: 40px;
     display: flex;
     flex-direction: column;
-    padding: 10px;
 }

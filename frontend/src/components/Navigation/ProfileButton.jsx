@@ -5,77 +5,84 @@ import * as sessionActions from '../../store/session';
 import OpenModalButton from '../OpenModalButton/OpenModalButton';
 import LoginFormModal from '../LoginFormModal/LoginFormModal';
 import SignupFormModal from '../SignupFormModal/SignupFormModal';
+import CreateSpotModal from '../CreateSpotModal/CreateSpotModal';
+import { Link, useNavigate } from 'react-router-dom';
+import './Navigation.css';
 
 function ProfileButton({ user }) {
-    const dispatch = useDispatch();
-    const [showMenu, setShowMenu] = useState(false);
-    const ulRef = useRef();
-  
-    const toggleMenu = (e) => {
-      e.stopPropagation(); // Keep from bubbling up to document and triggering closeMenu
-      setShowMenu(!showMenu);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [showMenu, setShowMenu] = useState(false);
+  const ulRef = useRef();
+
+  const toggleMenu = (e) => {
+    e.stopPropagation(); // Keep from bubbling up to document and triggering closeMenu
+    setShowMenu(prevState => !prevState); // Toggle the menu state
+  };
+
+  useEffect(() => {
+    if (!showMenu) return;
+
+    const closeMenu = (e) => {
+      if (!ulRef.current.contains(e.target)) {
+        setShowMenu(false); // Close the menu if clicked outside
+      }
     };
-  
-    useEffect(() => {
-      if (!showMenu) return;
-  
-      const closeMenu = (e) => {
-        if (!ulRef.current.contains(e.target)) {
-          setShowMenu(false);
-        }
-      };
-  
-      document.addEventListener('click', closeMenu);
-  
-      return () => document.removeEventListener("click", closeMenu);
-    }, [showMenu]);
-  
-    const closeMenu = () => setShowMenu(false);
-  
-    const logout = (e) => {
-      e.preventDefault();
-      dispatch(sessionActions.logout());
-      closeMenu();
-    };
-  
-    const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
-  
-    return (
-      <>
-        <button onClick={toggleMenu}>
-          <FaUserCircle />
-        </button>
-        <ul className={ulClassName} ref={ulRef}>
-          {user ? (
-            <>
-              <li>{user.username}</li>
-              <li>{user.firstName} {user.lastName}</li>
-              <li>{user.email}</li>
-              <li>
-                <button onClick={logout}>Log Out</button>
-              </li>
-            </>
-          ) : (
-            <>
-              <li>
-                <OpenModalButton
-                  buttonText="Log In"
-                  onButtonClick={closeMenu}
-                  modalComponent={<LoginFormModal />}
-                />
-              </li>
-              <li>
-                <OpenModalButton
-                  buttonText="Sign Up"
-                  onButtonClick={closeMenu}
-                  modalComponent={<SignupFormModal />}
-                />
-              </li>
-            </>
-          )}
-        </ul>
-      </>
-    );
-  }
-  
-  export default ProfileButton;
+
+    document.addEventListener('click', closeMenu);
+
+    return () => document.removeEventListener('click', closeMenu);
+  }, [showMenu]);
+
+  const closeMenu = () => setShowMenu(false);
+
+  const logout = (e) => {
+    e.preventDefault();
+    dispatch(sessionActions.logout());
+    navigate('/');
+    closeMenu();
+  };
+
+  const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
+
+  return (
+    <div className="profile-button-container">
+      {user ? (
+        
+        <div className="user-menu">
+            <OpenModalButton
+                buttonText="Create Spot"
+                modalComponent={<CreateSpotModal />}
+              />
+          
+          <button onClick={toggleMenu} className="profile-button">
+            <FaUserCircle />
+          </button>
+
+          <ul className={ulClassName} ref={ulRef}>
+            <p>Hello, <b>{user.firstName}</b>
+            <br></br>
+            {user.email}</p>
+              <Link to="/manage">Spot Management</Link>
+            <br></br>
+              <button className='logout-button' onClick={logout}>Log Out</button>
+          </ul>
+        </div>
+      ) : (
+
+        <div className="auth-buttons">
+          <OpenModalButton
+            buttonText="Log In"
+            modalComponent={<LoginFormModal />}
+          />
+          <OpenModalButton
+            buttonText="Sign Up"
+            modalComponent={<SignupFormModal />}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ProfileButton;

@@ -38,11 +38,11 @@ module.exports = {
       },
       lat: {
         type: Sequelize.FLOAT,
-        allowNull: false
+        defaultValue: null
       },
       lng: {
         type: Sequelize.FLOAT,
-        allowNull: false
+        defaultValue: null
       },
       name: {
         type: Sequelize.STRING,
@@ -60,7 +60,32 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       avgRating: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
+        defaultValue: null
+      },
+      imagePrev: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      imageOne: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
+      imageTwo: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
+      imageThree: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
+      imageFour: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null
       },
       createdAt: {
         allowNull: false,

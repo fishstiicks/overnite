@@ -1,1 +1,55 @@
 /* TODO: Add sitewide styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+body {
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+}
+
+.errortext {
+    color: red;
+}
+
+.longinput {
+    padding-bottom: 150px;
+}
+
+hr {
+    width: 100%;
+    size: 3;
+}
+
+h2 {
+    margin-bottom: 5px;
+}
+
+input {
+    background-color: lightgray;
+    border-width: 3px;
+    border-color: black;
+    background-color: rgb(207, 222, 236);
+    margin-bottom: 10px;
+    width: 96%;
+}
+
+button {
+    color: black;
+    background-color: lightgrey;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    width: 100%;
+    margin: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: black;
+    color: white;
+}
+
+button:disabled {
+    background-color: grey;
+    color: black;
+    cursor: default;
+}

@@ -1,0 +1,29 @@
+#reviewform {
+    padding: 20px;
+    border: black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.star-rating {
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    align-items: center;
+  }
+  
+  .star {
+    font-size: 24px;
+    color: rgb(179, 179, 179);
+  }
+  
+  .star.selected {
+    color: rgb(0, 0, 0);
+  }
+  
+  .server-error {
+    color: red;
+    margin-top: 10px;
+    font-size: 14px;
+  }

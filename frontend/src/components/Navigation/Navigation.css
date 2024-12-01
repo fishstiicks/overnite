@@ -1,0 +1,68 @@
+.auth-buttons {
+  display: flex;
+  position: fixed;
+  top: 10px;
+  right: 20px;
+}
+
+
+.user-menu {
+    display: flex;
+    position: fixed; 
+    top: 10px;         /* Adjust the vertical position */
+    right: 20px;       /* Adjust the horizontal position */
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 4px;         /* Space between items */
+}
+
+.profile-dropdown.hidden {
+    display: none;
+  }
+
+.profile-dropdown {
+    list-style: none;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nav-list {
+    list-style: none;
+  }
+  
+  .nav-list a {
+    text-decoration: none;
+    color:rgb(108, 112, 150);
+    font-weight: bold;
+    text-decoration: underline;
+  }
+
+  .nav-list a:hover {
+    color:rgb(49, 52, 77);
+  }
+
+  .profile-dropdown li {
+    color:rgb(99, 99, 99);
+  }
+
+  .logout-button {
+    border: none;
+    background-color: grey;
+    color: white;
+    border-radius: 10px;
+}
+
+.logout-button:hover {
+    background-color: black;
+    cursor: pointer;
+}
+  

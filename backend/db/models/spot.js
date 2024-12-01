@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     lat: {
       type: DataTypes.FLOAT,
-      allowNull: false,
+      allowNull: true,
       validate: {
         isWithinLatRange(value) {
           if (value < -90 || value > 90) {
@@ -52,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     lng: {
       type: DataTypes.FLOAT,
-      allowNull: false,
+      allowNull: true,
       validate: {
         isWithinLngRange(value) {
           if (value < -180 || value > 180) {
@@ -88,7 +88,15 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     numReviews: DataTypes.INTEGER,
-    avgRating: DataTypes.FLOAT
+    avgRating: DataTypes.FLOAT,
+    imagePrev: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    imageOne: DataTypes.STRING,
+    imageTwo: DataTypes.STRING,
+    imageThree: DataTypes.STRING,
+    imageFour: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Spot'

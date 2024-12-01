@@ -13,45 +13,50 @@ function LoginFormModal() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setErrors({});
+    setErrors({}); 
     return dispatch(sessionActions.login({ credential, password }))
       .then(closeModal)
       .catch(async (res) => {
         const data = await res.json();
-        if (data && data.errors) {
-          setErrors(data.errors);
+        if (data.errors) {
+         setErrors({ credentials: 'The provided credentials were invalid' });
         }
       });
   };
 
+
+  const isFormValid = credential.length >= 4 && password.length >= 6;
+
   return (
-    <>
+  <div id='login-body'>
       <h1>Log In</h1>
+        <div className='errortext'>{errors.credentials && <p>{errors.credentials}</p>}
+        {errors.credential && <p>{errors.credential}</p>}</div>
       <form onSubmit={handleSubmit}>
         <label>
-          Username or Email
           <input
             type="text"
+            placeholder='Username or Email'
             value={credential}
             onChange={(e) => setCredential(e.target.value)}
             required
           />
         </label>
+        <br></br>
         <label>
-          Password
           <input
             type="password"
+            placeholder='Password'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </label>
-        {errors.credential && (
-          <p>{errors.credential}</p>
-        )}
-        <button type="submit">Log In</button>
+        <br></br>
+
+        <button type="submit" disabled={!isFormValid}>Log In</button>
       </form>
-    </>
+     </div>
   );
 }
 

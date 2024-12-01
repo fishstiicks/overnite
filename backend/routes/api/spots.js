@@ -24,17 +24,11 @@ const validateSpot = [
         .notEmpty()
         .withMessage('Country is required'),
     check('lat')
-        .exists({checkFalsy: true})
-        .notEmpty()
-        .withMessage('Latitude is required'),
-    check('lat')
+        .optional()
         .isFloat({min: -90, max: 90})
         .withMessage('Latitude must be within -90 and 90'),
     check('lng')
-        .exists({checkFalsy: true})
-        .notEmpty()
-        .withMessage('Longitude is required'),
-    check('lng')
+        .optional()
         .isFloat({min: -180, max: 180})
         .withMessage('Longitude must be within -180 and 180'),
     check('name')
@@ -54,9 +48,13 @@ const validateSpot = [
         .notEmpty()
         .withMessage('Price cannot be empty'),
     check('price')
-    .isFloat({ min: 0.01})
-    .withMessage('Price per day must be a postive number'),
-    handleValidationErrors
+        .isFloat({ min: 0.01})
+        .withMessage('Price per day must be a postive number'),
+        handleValidationErrors,
+    check('imagePrev')
+        .exists({checkFalsy: true})
+        .notEmpty()
+        .withMessage('Preview image link is required')
   ];
 
 const validateFilters = [
@@ -101,9 +99,10 @@ router.post('/', validateSpot, async (req, res, next) => {
             return res.status(401).json({ message: 'Authentication required' });
         }
 
-        const { address, city, state, country, lat, lng, name, description, price } = req.body;
+        const { address, city, state, country, name, description, price, imagePrev, imageOne, imageTwo, imageThree, imageFour } = req.body;
         const currentUserId = req.user.id;
-        const spot = await Spot.create({ ownerId: currentUserId, address, city, state, country, lat, lng, name, description, price });
+
+        const spot = await Spot.create({ ownerId: currentUserId, address, city, state, country, lat: null, lng: null, name, description, price, imagePrev, imageOne: imageOne || null, imageTwo: imageTwo || null, imageThree: imageThree || null, imageFour: imageFour || null });
 
 
         return res.status(201).json({
@@ -119,7 +118,12 @@ router.post('/', validateSpot, async (req, res, next) => {
             description: spot.description,
             price: spot.price,
             createdAt: spot.createdAt,
-            updatedAt: spot.updatedAt
+            updatedAt: spot.updatedAt,
+            imagePrev: spot.imagePrev,
+            imageOne: spot.imageOne,
+            imageTwo: spot.imageTwo,
+            imageThree: spot.imageThree,
+            imageFour: spot.imageFour
         })
     }
 )
@@ -145,6 +149,11 @@ router.get('/', async (req,res) => {
             updatedAt: spot.updatedAt,
             avgRating: spot.avgStarRating,
             previewImage: spot.previewImage,
+            imagePrev: spot.imagePrev,
+            imageOne: spot.imageOne,
+            imageTwo: spot.imageTwo,
+            imageThree: spot.imageThree,
+            imageFour: spot.imageFour
         }
     })
     
@@ -193,7 +202,7 @@ router.get('/:spotId', async (req,res) => {
     const { spotId } = req.params;
     const spot = await Spot.findByPk(spotId, {
         include: [{model: SpotImage}, {model: User, as: 'Owner', attributes: ['id', 'firstName', 'lastName']}],
-        attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt', 'numReviews', 'avgRating']
+        attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt', 'numReviews', 'avgRating', 'imagePrev', 'imageOne', 'imageTwo', 'imageThree', 'imageFour']
       });
 
     if (!spot) {
@@ -219,7 +228,12 @@ router.get('/:spotId', async (req,res) => {
         numReviews: spot.numReviews,
         avgRating: spot.avgRating,
         SpotImages: spot.SpotImages,
-        Owner: spot.Owner 
+        Owner: spot.Owner,
+        imagePrev: spot.imagePrev,
+        imageOne: spot.imageOne,
+        imageTwo: spot.imageTwo,
+        imageThree: spot.imageThree,
+        imageFour: spot.imageFour
     })
 
 })
@@ -283,7 +297,12 @@ router.put('/:spotId',validateSpot, async (req, res) => {
             lng: req.body.lng,
             name: req.body.name,
             description: req.body.description,
-            price: req.body.price
+            price: req.body.price,
+            imagePrev: req.body.imagePrev,
+            imageOne: req.body.imageOne,
+            imageTwo: req.body.imageTwo,
+            imageThree: req.body.imageThree,
+            imageFour: req.body.imageFour
         })
     
 

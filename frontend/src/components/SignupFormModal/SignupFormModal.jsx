@@ -57,7 +57,7 @@ function SignupFormModal() {
     <div id='signup-form'>
       <h1>Sign Up</h1>
       <form onSubmit={handleSubmit}>
-      <div class='errortext'>
+      <div className='errortext'>
       {errors.email && <p>{errors.email}</p>}
       {errors.username && <p>{errors.username}</p>}
       {errors.firstName && <p>{errors.firstName}</p>}

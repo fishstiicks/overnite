@@ -1,6 +1,6 @@
 import './DeleteSpot.css';
 
-function DeleteSpotModal({ spotId, spotName, onDelete, onClose }) {
+function DeleteSpotModal({ spotId, onDelete, onClose }) {
   return (
     <div className="modal">
       <div className="modal-content">

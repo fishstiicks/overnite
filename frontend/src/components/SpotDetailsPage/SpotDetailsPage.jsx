@@ -80,7 +80,7 @@ function SpotDetailsPage() {
 
       <div className="spot-underpics">
       <div className="spot-details">
-        <h3>Hosted by {spot.Owner.firstName} {spot.Owner.lastName}</h3>
+        <h3>Hosted by {spot.Owner?.firstName} {spot.Owner?.lastName}</h3>
         <p>{spot.description}</p>
       </div>
 

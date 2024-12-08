@@ -61,7 +61,7 @@ function SpotManagementPage() {
         {spots.length > 0 && spots.map((spot) => (
           <div key={spot.id} className="spot-item" title={spot.name}>
             <Link to={`/spots/${spot.id}`}>
-              <img src={spot.previewImage} alt={spot.name} className="spot-image" />
+              <img src={spot.imagePrev} alt={spot.name} className="spot-image" />
               <h2>{spot.name}</h2>
               <p>{spot.description}</p>
               <p><strong>${spot.price}</strong> / night</p>

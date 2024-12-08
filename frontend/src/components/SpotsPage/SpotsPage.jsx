@@ -26,7 +26,6 @@ function SpotsPage() {
                 <img src={spot.imagePrev} alt={spot.name} className="spot-image" />
                 
                 <div className="spotheader">
-                <p>{spot.Owner?.firstName}</p>
                 <p>{spot.city}, {spot.state}</p>
                   <div className="spot-rating">
                     <span className="star-icon">★</span>

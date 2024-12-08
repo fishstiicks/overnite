@@ -46,7 +46,7 @@ function CreateReviewModal({ spotId }) {
 
       <form onSubmit={handleSubmit}>
         <label>
-            <input className='longinput'
+            <textarea className='longinput'
             type="text"
             value={review}
             onChange={(e) => setReview(e.target.value)}

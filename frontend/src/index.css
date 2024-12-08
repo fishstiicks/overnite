@@ -12,6 +12,7 @@ body {
 
 .longinput {
     padding-bottom: 150px;
+    width: 96%
 }
 
 hr {
@@ -24,17 +25,16 @@ h2 {
 }
 
 input {
-    background-color: lightgray;
+    background-color: rgb(240, 240, 240);
     border-width: 3px;
     border-color: black;
-    background-color: rgb(207, 222, 236);
     margin-bottom: 10px;
     width: 96%;
 }
 
 button {
     color: black;
-    background-color: lightgrey;
+    background-color: rgb(215, 225, 230);
     border: none;
     padding: 10px;
     border-radius: 10px;
@@ -44,7 +44,7 @@ button {
 }
 
 button:hover {
-    background-color: black;
+    background-color: rgb(112, 145, 165);
     color: white;
 }
 

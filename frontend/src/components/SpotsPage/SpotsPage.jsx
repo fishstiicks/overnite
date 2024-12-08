@@ -26,16 +26,13 @@ function SpotsPage() {
                 <img src={spot.imagePrev} alt={spot.name} className="spot-image" />
                 
                 <div className="spotheader">
-                  <h2>{spot.name}</h2>
-
+                <p>{spot.city}, {spot.state}</p>
                   <div className="spot-rating">
                     <span className="star-icon">★</span>
                     <span>{spot.avgRating ? spot.avgRating.toFixed(1) : "New"}</span> 
                   </div>
                 </div>
-
-                <p>{spot.city}, {spot.state}</p>
-                <p><strong>${spot.price}</strong> / night</p>
+                <div className="spotprice"><p><strong>${spot.price}</strong> / night</p></div>
               </Link>
             </div>
           ))

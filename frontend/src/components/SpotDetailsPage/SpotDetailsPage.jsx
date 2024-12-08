@@ -65,7 +65,7 @@ function SpotDetailsPage() {
 
   return (
     <div className="spot-details-page">
-      <h1>{spot.name}</h1>
+      <h2>{spot.name}</h2>
       <p>{spot.city}, {spot.state}, {spot.country}</p>
 
       <div className="spot-images">

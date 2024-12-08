@@ -22,7 +22,7 @@
   
   .large-image img {
     width: 100%;
-    height: auto;
+    height: 100%;
     object-fit: cover; 
   }
   
@@ -35,7 +35,7 @@
   
   .small-images img {
     width: 100%;
-    height: auto;
+    height: 100%;
     object-fit: cover; 
   }
 
@@ -51,8 +51,16 @@
     border: 2px solid rgb(189, 189, 189);
     border-radius: 10%;
     padding: 20px;
-    margin: 5px;
+    margin: 15px;
     text-align: center;
   }
 
+  .reviews-section ul {
+    list-style: none; /* Removes bullet points */
+    padding-left: 0;   /* Removes default padding from the left */
+  }
+  
+  .reviews-section li {
+    margin-bottom: 20px; /* Adds space between reviews */
+  }
   

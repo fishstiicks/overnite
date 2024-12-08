@@ -118,7 +118,7 @@ function CreateSpotModal() {
         <p>Mention the best features of your space, any special amenities like fast wifi or parking, and what you love about the neighborhood.</p>
 
         <label>
-          <input className='longinput'
+          <textarea className='longinput'
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -136,7 +136,6 @@ function CreateSpotModal() {
         
         {errors.name && <p className="error-message">{errors.name}</p>}
         <label>
-          Name
           <input
             type="text"
             value={name}

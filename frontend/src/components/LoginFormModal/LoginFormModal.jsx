@@ -24,6 +24,17 @@ function LoginFormModal() {
       });
   };
 
+  const loginAsDemo = async (e) => {
+    e.preventDefault();
+
+    // Call the login action with demo user credentials
+    const demoUser = {
+      credential: 'Demo-lition',
+      password: 'password'
+    };
+
+      await dispatch(sessionActions.login(demoUser));
+  };
 
   const isFormValid = credential.length >= 4 && password.length >= 6;
 
@@ -56,6 +67,10 @@ function LoginFormModal() {
 
         <button type="submit" disabled={!isFormValid}>Log In</button>
       </form>
+
+      <button onClick={loginAsDemo} className="demo-login-button">
+            Log in as Demo User
+      </button>
      </div>
   );
 }

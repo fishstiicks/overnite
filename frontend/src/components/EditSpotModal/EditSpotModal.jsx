@@ -102,7 +102,7 @@ function EditSpotModal({ spot, closeModal, onUpdate }) {
 
         <label>
           Description
-          <input className='longinput'
+          <textarea className='longinput'
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
